@@ -1,1 +1,4 @@
-
+#Исключим директорию archive :
+archive/
+#Исключим сам файл .gitignore:
+.gitignore
