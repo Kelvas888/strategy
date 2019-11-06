@@ -12,19 +12,19 @@ class Map:
         sys.path.append('..')
         from core import Mainer 
         sys.path.pop()
-        self.mainers.append(Mainer((200,310)))
-        self.mainers.append(Mainer((200,323)))
-        self.mainers.append(Mainer((220,312)))
-        self.mainers.append(Mainer((500,410)))
-        self.mainers.append(Mainer((100,310)))
-        self.mainers.append(Mainer((600,320)))
-        self.mainers.append(Mainer((600,210)))
-        self.mainers.append(Mainer((456,1100)))
-        self.mainers.append(Mainer((700,1903)))
-        self.mainers.append(Mainer((900,2345)))
-        self.mainers.append(Mainer((600,2345)))
-        self.mainers.append(Mainer((620,2345)))
-        self.mainers.append(Mainer((640,2345)))
+        self.mainers.append(Mainer('red',(200,310)))
+        self.mainers.append(Mainer('red',(200,323)))
+        self.mainers.append(Mainer('red',(220,312)))
+        self.mainers.append(Mainer('blue',(500,410)))
+        self.mainers.append(Mainer('blue',(100,310)))
+        self.mainers.append(Mainer('blue',(600,320)))
+        self.mainers.append(Mainer('blue',(600,210)))
+        self.mainers.append(Mainer('blue',(456,1100)))
+        self.mainers.append(Mainer('blue',(700,1903)))
+        self.mainers.append(Mainer('blue',(900,2345)))
+        self.mainers.append(Mainer('blue',(600,2345)))
+        self.mainers.append(Mainer('blue',(620,2345)))
+        self.mainers.append(Mainer('blue',(640,2345)))
         del Mainer
         return self.mainers
 		
@@ -34,8 +34,8 @@ class Map:
         sys.path.append('..')
         from core import Marine 
         sys.path.pop()
-        self.marines.append(Marine((300,310)))
-        self.marines.append(Marine((300,343)))
+        self.marines.append(Marine('red',(300,310)))
+        self.marines.append(Marine('blue',(300,343)))
         del Marine
         return self.marines
 	
@@ -43,13 +43,13 @@ class Map:
         sys.path.append('..')
         from core import Centre 
         sys.path.pop()
-        self.centres.append(Centre((0,0)))
-        self.centres.append(Centre((250,600)))
-        self.centres.append(Centre((590,100)))
-        self.centres.append(Centre((100,250)))
-        self.centres.append(Centre((450,1400)))
-        self.centres.append(Centre((590,1040)))
-        self.centres.append(Centre((100,1504)))
+        self.centres.append(Centre('red',(0,0)))
+        self.centres.append(Centre('red',(250,600)))
+        self.centres.append(Centre('red',(590,100)))
+        self.centres.append(Centre('red',(100,250)))
+        self.centres.append(Centre('blue',(450,1400)))
+        self.centres.append(Centre('blue',(590,1040)))
+        self.centres.append(Centre('blue',(100,1504)))
         del Centre
         return self.centres
 		

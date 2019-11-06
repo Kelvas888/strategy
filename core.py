@@ -11,7 +11,9 @@ class Resours:
         self.queue = []	
         self.queue_place = 0	
         self.res[0] = 5050
-
+        self.alliance = 'blue'	
+		
+		
 class Cam:
     def __init__(self,pos=(0,0),rot=(0,0)):
         self.dt = 0
@@ -66,7 +68,7 @@ class Cam:
                              select_object.dog = select_object.just_dog
                              self.choosObject = []
                          break
-                  if self.onclick == 1 and self.choosObject[-1].takeclick == 1 and self.k_a == 1:
+                  if self.onclick == 1 and self.choosObject[-1].takeclick == 1 and self.k_a == 1 and self.choosObject[-1].alliance == resours.alliance:
                          for select_object in self.choosObject:
                              select_object.attack((pos_m[0]-cam.pos[0],pos_m[1]-cam.pos[1]))
                          break
@@ -76,6 +78,7 @@ class Cam:
                              select_object.targets.insert(0, Target(0,(pos_m[0]-cam.pos[0],pos_m[1]-cam.pos[1])))
                              select_object.targets[0].amouts = len(self.choosObject)
                              select_object.take = 3
+                             select_object.calculator = 1
                              select_object.order_t = -1
                          break
 
@@ -202,13 +205,14 @@ class Obstacle:
         self.r_size = 1.41*25
 
 class Centre:
-    def __init__(self,pos=(0,0),rot=(0,0),data_protections=(1000,100,100,100)):
+    def __init__(self,alliance,pos=(0,0),rot=(0,0),data_protections=(1000,100,100,100)):
+        self.alliance = alliance
         self.pos = list(pos)
         self.rot = list(rot)
         self.takeclick = 0
         self.data_protections = list(data_protections)
-        self.frame_dog = pygame.image.load('pictures/frameBB.png')
-        self.just_dog = pygame.image.load('pictures/BB.png')
+        self.frame_dog = pygame.image.load('pictures/'+self.alliance+'/frameBB.png')
+        self.just_dog = pygame.image.load('pictures/'+self.alliance+'/BB.png')
         self.dog = self.just_dog
         self.unit_center = pygame.image.load('pictures/iconBB.png')
         self.center_unit = self.unit_center	
@@ -233,10 +237,10 @@ class Centre:
             else: 
 			
     	         if self.typeUnit[0] == 0: 
-    	             newbee = Mainer((self.pos[0],self.pos[1]))
+    	             newbee = Mainer(self.alliance,(self.pos[0],self.pos[1]))
     	             mainers.insert(0,newbee)
     	         if self.typeUnit[0] == 1: 
-    	             newbee = Marine((self.pos[0],self.pos[1]))
+    	             newbee = Marine(self.alliance,(self.pos[0],self.pos[1]))
     	             mainers.insert(0,newbee)
     	             newbee.targets.insert(0, Target(0,(self.__position)))
     	             newbee.take = 3
@@ -267,12 +271,13 @@ class Centre:
 
 
 class Mainer:
-    def __init__(self,pos=(0,0),rot=(0,0,0),data_protections=(100,10,10,10)):
+    def __init__(self,alliance,pos=(0,0),rot=(0,0,0),data_protections=(100,10,10,10)):
+        self.alliance = alliance
         self.pos = list(pos)
         self.rot = list(rot)
         self.data_protections = list(data_protections)
-        self.frame_dog = pygame.image.load('pictures/framemainer.png')
-        self.just_dog = pygame.image.load('pictures/mainer.png')
+        self.frame_dog = pygame.image.load('pictures/'+self.alliance+'/framemainer.png')
+        self.just_dog = pygame.image.load('pictures/'+self.alliance+'/mainer.png')
         self.dog = self.just_dog
         self.viewres = pygame.image.load('pictures/emptyres.png')
         self.takeclick = 0
@@ -286,11 +291,13 @@ class Mainer:
         self.cost = 0
         self.order_t = 0
         self.targets = []
+        self.calculator = 1
+        self.distance_C = 1
 
 
 		
     def attack(self,select_position):
-        whizzbangs.insert(0, Whizzbang(self.pos,select_position))
+        whizzbangs.insert(0, Whizzbang(self.alliance,self.pos,select_position))
 
 		
     def update(self,x,y):
@@ -329,6 +336,7 @@ class Mainer:
     	         nearposition_y = self.pos[1] + (self.sin*math.cos(math.radians(90))+self.cos*math.sin(math.radians(90)))*self.r_size*4
     	         if len(self.targets)>0 and self.targets[-1].type == 1: self.targets.pop()
     	         self.targets.append(Target(1,(nearposition_x,nearposition_y)))
+    	         self.calculator = 1
     	         self.take = 3
     	         self.order_t = -1
     	         break
@@ -336,6 +344,7 @@ class Mainer:
         return cheker_2
 
     def getChosen(self):
+        self.calculator = 0
 
         if self.take == 3:
     	     self.choose = self.targets[self.order_t]
@@ -372,17 +381,23 @@ class Mainer:
       	             self.choose = item
         return self.choose
 
-    def getVector(self):
-        self.choosItem = self.getChosen()
+		
+    def getDirection(self):
         distance_X = self.choosItem.pos[0] - self.pos[0]
         distance_Y = self.choosItem.pos[1] - self.pos[1]
-        distance_C = math.sqrt(distance_Y*distance_Y+distance_X*distance_X)
-        if distance_C == 0:
+        self.distance_C = math.sqrt(distance_Y*distance_Y+distance_X*distance_X)
+        if self.distance_C == 0:
              self.cos = 0
              self.sin = 0
         else:
-             self.cos = distance_X/distance_C
-             self.sin = distance_Y/distance_C
+             self.cos = distance_X/self.distance_C
+             self.sin = distance_Y/self.distance_C
+		
+		
+    def getVector(self):
+        if self.calculator == 1: 
+             self.choosItem = self.getChosen()
+        self.getDirection()
         preposition_x = self.pos[0]
         preposition_y = self.pos[1]
         cheker = 0
@@ -400,19 +415,21 @@ class Mainer:
              elif self.rot[1]>0.1 and cheker<2: self.rot[1]-=0.1
         if self.getObstacle() == 2: self.speed = 0
         else: self.speed = self.speedNormal
-        self.getPath(distance_C)
+        self.getPath(self.distance_C)
         self.cos = self.cos*math.cos(math.radians(self.rot[1]))-self.sin*math.sin(math.radians(self.rot[1]))
         self.sin = self.sin*math.cos(math.radians(self.rot[1]))+self.cos*math.sin(math.radians(self.rot[1]))
         self.pos[0]+=self.cos*self.speed
         self.pos[1]+=self.sin*self.speed
-        rot_cos = math.acos(self.cos)/math.pi*180
-        if self.pos[0]<=self.choosItem.pos[0] and self.pos[1]>=self.choosItem.pos[1]: self.rot[0] = 180 + rot_cos
-        if self.pos[0]<=self.choosItem.pos[0] and self.pos[1]<=self.choosItem.pos[1]: self.rot[0] = 180 - rot_cos
-        if self.pos[0]>=self.choosItem.pos[0] and self.pos[1]>=self.choosItem.pos[1]: self.rot[0] = 180 + rot_cos
-        if self.pos[0]>=self.choosItem.pos[0] and self.pos[1]<=self.choosItem.pos[1]: self.rot[0] = 180 - rot_cos
-        if distance_C < self.choosItem.r_size: self.getTake()
+        self.getRot()
+        if self.distance_C < self.choosItem.r_size: self.getTake()
 
+    def getRot(self):
+        rot_cos = math.acos(self.cos)/math.pi*180
+        if self.pos[1]>=self.choosItem.pos[1]: self.rot[0] = 180 + rot_cos
+        if self.pos[1]<=self.choosItem.pos[1]: self.rot[0] = 180 - rot_cos
+		
     def getTake(self):
+        self.calculator = 1
         if self.take == 0:
              if self.choosItem.give_1 == 15:
                          self.take = 1
@@ -440,16 +457,17 @@ class Mainer:
 
 
 class Marine(Mainer):
-    def __init__(self,pos=(0,0),rot=(0,0,0),data_protections=(100,10,10,10)):
-        super().__init__(pos,rot,data_protections)
-        self.just_dog = pygame.image.load('pictures/marine.png')
-        self.frame_dog = pygame.image.load('pictures/framemarine.png')
+    def __init__(self,alliance,pos=(0,0),rot=(0,0,0),data_protections=(100,10,10,10)):
+        super().__init__(alliance,pos,rot,data_protections)
+        self.just_dog = pygame.image.load('pictures/'+self.alliance+'/marine.png')
+        self.frame_dog = pygame.image.load('pictures/'+self.alliance+'/framemarine.png')
         self.targets.insert(0, Target(2,(self.pos[0]+self.cos*5,self.pos[1]+self.sin*5)))
         self.take = 1
         self.order_t = -1
         self.dog = self.just_dog
 		
     def getChosen(self):
+        self.calculator = 0
         if self.take == 3:
     	     if self.targets[self.order_t].type == 2: self.targets.pop()
     	     self.choose = self.targets[self.order_t]
@@ -461,7 +479,7 @@ class Marine(Mainer):
         return self.choose
 
     def getTake(self):
-
+        self.calculator = 1
         if self.take == 3:
              if len(self.targets)>self.order_t*(-1):
                          self.targets.pop()
@@ -472,9 +490,9 @@ class Marine(Mainer):
                          self.order_t = -1
                          self.take = 1
 
-class Whizzbang(Marine):
-    def __init__(self,pos=(0,0),tar=(0,0)):
-        super().__init__(pos)
+class Whizzbang(Mainer):
+    def __init__(self,alliance,pos=(0,0),tar=(0,0)):
+        super().__init__(alliance,pos)
         self.just_dog = pygame.image.load('pictures/whizzbang.png')
         self.dog = self.just_dog
         self.tar = list(tar)
@@ -485,10 +503,23 @@ class Whizzbang(Marine):
         self.take = 3
         self.order_t = -1
         self.__lifeTime = 30
+
+    def getRot(self):
+        if self.__lifeTime>=30:
+             rot_cos = math.acos(self.cos)/math.pi*180
+             if self.pos[1]>=self.choosItem.pos[1]: self.rot[0] = 180 + rot_cos
+             if self.pos[1]<=self.choosItem.pos[1]: self.rot[0] = 180 - rot_cos
+
+    def getDirection(self):
+        if self.__lifeTime>=30:
+             distance_X = self.choosItem.pos[0] - self.pos[0]
+             distance_Y = self.choosItem.pos[1] - self.pos[1]
+             self.distance_C = math.sqrt(distance_Y*distance_Y+distance_X*distance_X)
+             self.cos = distance_X/self.distance_C
+             self.sin = distance_Y/self.distance_C	
 		
-		
-    def lifeTime(self):
-        self.__lifeTime-=1
+    def lifeTime(self,time):
+        self.__lifeTime-=time
         if self.__lifeTime<1:
              whizzbangs.remove(self)   
              self.__del__()			 
@@ -614,7 +645,7 @@ while True:
 
     for whizzbang in whizzbangs:
         whizzbang.getVector()
-        whizzbang.lifeTime()				
+        whizzbang.lifeTime(1)				
     for mainer in mainers:
         mainer.getVector()
     for centre in centres:
